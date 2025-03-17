@@ -1,0 +1,162 @@
+# Updated: 2025-03-17 04:10 UTC
+
+# Introduction to NomadNet
+# NomadNet is a terminal based application for the Reticulum Network meshnet protocol to allow for distributed encrypted communications over any medium.
+# More information can be found here https://github.com/markqvist/nomadnet
+
+# After installing NomadNet, you can view more content on the ComSec RD node at Reticulum address e42af9f39c48c481d58f39ab516c51ea
+
+# INSTALLING NOMADNET
+
+# Open source software is essential for security due to transparency of code. Do not trust closed source software. And something is only open source if it can be proven to be derived from the source code un-modified or if built from the source code by the end user. The goal of this document is to assist in building NomadNet and the dependency tree from source code, along with setting up and using NomadNet. You must build the dependency tree from source code if you want to trust your software. Especially if it is software serving secure communications or cryptography. Building from source code can be a burden, but this is neccessary and only needs done once or whenever updating the application.
+
+# These instructions were made for Debian. If you are doing this on different operating systems, the install commands or name of dependencies may vary. I have also successfully built nomadnet and its depednencies from source on alpine linux.
+
+# Before beginning, Debian should be on the "testing" (testing is stable enough) distribution instead of the default "stable" distribution. The "stable" version of Debian is unacceptably out of date with the software. When building software from source code you often times need up to date software. At the time of this writing, the current stable version of Debian is codenamed bookworm and the testing version is codenamed trixie. You also need to check that you have the source repositories declared in your /etc/apt/sources.list file. If you are using Debian, you can edit this file using command "sudo nano /etc/apt/sources.list" and replace all words "bookworm" (the current debian stable version) with "trixie"; or whatever the current testing version name is. Then also add duplicate lines of each entry but with "-src" added. For example, here is the before and after of my sources.list file
+	# Before modifications:
+deb http://deb.debian.org/debian bookworm main
+deb http://deb.debian.org/debian bookworm-updates main
+deb http://deb.debian.org/debian-security/ bookworm-security main
+deb http://deb.debian.org/debian bookworm-backports main
+
+	# After modifications:
+deb http://deb.debian.org/debian trixie main
+deb-src http://deb.debian.org/debian trixie main
+deb http://deb.debian.org/debian trixie-updates main
+deb-src http://deb.debian.org/debian trixie-updates main
+deb http://deb.debian.org/debian-security/ trixie-security main
+deb-src http://deb.debian.org/debian-security/ trixie-security main
+deb http://deb.debian.org/debian trixie-backports main
+deb-src http://deb.debian.org/debian trixie-backports main
+
+# After modifying the /etc/apt/sources.list file, you then need to run these commands.
+	sudo apt update
+	sudo apt dist-upgrade
+	sudo reboot
+	
+# Install dependencies needed to build the NomadNet dependency tree
+# You only need direwolf and minimodem if you want to be able to use audio for networking and sending data
+	sudo apt update
+	sudo apt upgrade
+	sudo apt install apt-src build-essential pkg-config cmake python3-pip python3-venv python3-dev cargo rustc libffi-dev direwolf minimodem
+
+# Build openssl-dev from source, might be libssl-dev on debian.
+	sudo apt-src --build install libssl-dev
+# Then install the created .deb files
+	ls
+	sudo dpkg --install *.deb
+#If you need additional dependencies to build libssl-dev or openssl-dev from source, it is recommended to install the build dependencies themselves from source code also.
+
+# End sudo session
+	sudo -k
+
+# Build a python virtual environment. Do this in the directory you want it to be placed in.
+	python3 -m venv nomadnet-venv
+
+# Enter the python virtual environment
+	source nomadnet-venv/bin/activate
+# If the python virtual environment was loaded properly, you will see the virtual environment in parenthesis in the command prompt)
+
+# Download source code and build from source
+# First for cryptography to insure it is built and installed preoperly before builing and installing nomadnet
+	pip -v install --ignore-installed --force-reinstall --log cryptography-install.log --no-cache-dir --no-binary :all: cryptography
+# Then after ensuring cryptograpgy is successfully built and installed, then proceed with nomadnet
+	pip -v install --ignore-installed --force-reinstall --log nomadnet-install.log --no-cache-dir --no-binary :all: nomadnet
+# If you get any errors, look at the log or output, you probably need other dependencies installed first. You can use the same command as above to install other pip dependencies, replacing "nomadnet" with the name of the proper package. By attempting to install a needed dependency directly, you will get more verbose output as to any errors and reasons of failure to build.
+
+# Leave the python virtual environment
+	deactivate
+
+########################################################
+
+# SETTING UP NOMADNET
+
+# You first may need to configure an interface.
+	nano ~/.reticulum/config
+
+# Here are some internet accessible nodes you can use. Just copy and paste this into your config file.
+
+# TCP/IP interface to ComSec RD node
+  [[RNS COMSECRD]]
+    type = TCPClientInterface
+    enabled = yes
+    target_host = 80.78.23.249
+    target_port = 4242
+
+# TCP/IP interface to the Dublin Hub
+  [[RNS Testnet Dublin]]
+    type = TCPClientInterface
+    enabled = yes
+    target_host = dublin.connect.reticulum.network
+    target_port = 4965
+
+# TCP/IP interface to the BetweenTheBorders Hub (community-provided)
+  [[RNS Testnet BetweenTheBorders]]
+    type = TCPClientInterface
+    enabled = yes
+    target_host = reticulum.betweentheborders.com
+    target_port = 4242
+
+########################################################
+
+# USING NOMADNET
+
+# After you have built installed and setup NomadNet, you only need to do the following going forward.
+
+# Enter the python virtual environment
+	source nomadnet-venv/bin/activate
+
+# Start up NomadNet
+	nomadnet
+
+# You can use the arrow keys and ENTER key, or even the mouse cursor to click on things. At the bottom of each page you will see shortcuts beginning with C-, upper case C implies the CTRL key plus whatever other letter is mentioned. For example if C-d is to send a message, you would press CTRL plus the 'd' key.
+# On the Conversations page, you can do shortcut CTRL + 'n' (shown as C-n) to start a new conversation, and enter an Address of the entity you wish to communicate to. You can alternatively go to the Network page, then CTRL + 'L' to view the announce stream which are detected entities on the network, you can then select one and hit the "Converse" button. When in the conversation window, you can do shortcut CTRL + 'b" to save the contact.
+
+# When done, exit from the python virtual environment
+	deactivate
+
+########################################################
+
+# IF USING RADIO OR PHONE CALLS
+
+# You only need to follow this section of the guide if using nomadnet over an audio channel such as radio or over terrestrial or satellite phone calls. This is one method of using nomadnet for encrypted communications directly peer to peer over an open audio channel with another user setup in the same way.  I have another method of using NomadNet tethered with satellite phones with using the satellite phone as a TCP modem. Instructions, scripts, and more detail of using NomadNet over satellite will be posted at a later date.
+
+# Direwolf is a software that is used to create data channels over audio.
+
+# Add your user to the dialout group, replacing word user with your username
+	sudo usermod -aG dialout user
+
+# Set this in reticulum config. If you are not using direwolf you should remove this section from the config. I have seen it where NomadNet crashes at times if this is in the config but direwolf is not running.
+
+[[TCP KISS Interface]]
+  type = TCPClientInterface
+  interface_enabled = True
+  kiss_framing = True
+  target_host = 127.0.0.1
+  target_port = 8001
+
+# If using phones, call the person you are communicating with, when a call is established you can then use NomadNet directly peer to peer with the other person over the call.
+# When establishing a reticulum link over an open audio channel, if neither side wants to use voice to communicate the establishment of a peer-to- peer reticulum link using their voice (for privacy reasons) they can do so using this very simple proposed protocol I came up with:
+# The users can a button on their keypad such as the * key to send a DTMF tone (known as a beep). If they are unable to use a button to send a DTMF tone they could instead whistle, snap fingers, or something else to create a sound. The one initiating the reticulum over audio link I will call the initiator, and the other person I will call the repsonder who is responding to the initiator.
+# One beep (*) from initiator = "I wish to establish a reticulum link over this audio channel"
+# Two beeps (* *) from responder = "I am interested and able to right now, or I am setting up now and will be ready within a few minutes."
+# Three beeps (* * *) from responder = "I am interested and able to soon, I will hang up and call you back when I am setup and ready"
+# Three beeps (* * *) from initiator = "I am hanging up, call me back when you are setup and ready."
+# Four beeps (* * * *) from initiator or responder = "Rejecting or terminating at this time." (If the reticulum link is not already setup)
+# A series of beeps can be repeated with sufficient spaces in between each transmission, to keep the count of the beeps clear.
+
+# If you are using a radio, turn your radio on, enable vox, disable roger beep. Set screen timeout after last activity to 10 seconds, this is the ABS setting on Baofeng radios.
+# Connect computer and radio with TRRS cable
+# Make sure the computer or device you are using the software on, supports both audio out and audio in on the jack that the audio cable is plugged into. If you are using a radio with a TRRS cable and if the computer is not detecting the radio audio interface when plugged in, but it detects headset, you can get a TRRS audio in and out splitter, and plug the TRRS splitter into the computer, then plug the headset into the splitter first to cause detection of the audio port, then proceed to plug in the radio into the second port of the TRRS splitter. The TRRS splitter must support audio in and out on both ports. A recommended one can be found here https://www.amazon.com/SOLMIMI-Headphone-Splitter-2-Female-Smartphone/dp/B08X6P2XH2/ 
+
+# Check output of direwolf for any errors, specifically for any errors related to volume level. If your input volume is too high it may ask you to turn it down. Either way you want to have your input volume set to 50 for reliability.
+# Half duplex is if you can only send or recieve at a time, full duplex is when you can receive and send simutaneously.
+# Phones are full duplex.
+# From my testing, half duplex will not work properly. Radios are usually half-duplex. If you need full duplex over radio, you can use a spliced TRRS cable, and use two radios. One radio for input, another radio for output, but both on different frequencies. Or maybe go with full duplex radios if such exist. Two radios for full duplex is more accessible and likely chepaer, but bulkier.
+
+# Create a file called direwolf.conf if it does not already exist
+	touch direwolf.conf
+# Then run this command. This is using a baud rate of 2048, each side should use the same baud rate, lower is more reliable but slower and longer. You can try out higher baud rates to see what the highest baud rate you can get while keeping reliability. You can lower or increase this to try to find the best baud rate.
+	direwolf -B 2048 -d k  -p -c direwolf.conf
+
+# Start up nomadnet again
