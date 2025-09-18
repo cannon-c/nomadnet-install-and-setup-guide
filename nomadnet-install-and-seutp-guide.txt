@@ -1,4 +1,4 @@
-# Updated: 2025-03-17 04:10 UTC
+# Updated: 2025-09-17 03:28 UTC
 
 # Introduction to NomadNet
 # NomadNet is a terminal based application for the Reticulum Network meshnet protocol to allow for distributed encrypted communications over any medium.
@@ -117,6 +117,30 @@ deb-src http://deb.debian.org/debian trixie-backports main
 
 ########################################################
 
+# CONFIGURING NOMADNET TO USE I2P
+
+Install i2pd either from the software repository, or build it from source.
+On Debian, you can install i2pd with the commands
+	sudo apt update
+	sudo apt install i2pd
+Or you can build and install i2pd using apt-src
+then you can enable it to auto-start when your computer boots up, and start the service
+	sudo systemctl enable i2pd
+	sudo systemctl start i2pd
+If you are using a different linux based operating system, the specific commands will be different.
+
+Once you have installed i2pd, you would then put this into your config file located at .reticulum/config in your home directory
+
+	[[I2P]]
+	type = I2PInterface
+	interface_enabled = yes
+	connectable = yes
+
+Then start up nomadnet again, you can then see your i2p address using the command
+	rnsstatus
+
+########################################################
+
 # IF USING RADIO OR PHONE CALLS
 
 # You only need to follow this section of the guide if using nomadnet over an audio channel such as radio or over terrestrial or satellite phone calls. This is one method of using nomadnet for encrypted communications directly peer to peer over an open audio channel with another user setup in the same way.  I have another method of using NomadNet tethered with satellite phones with using the satellite phone as a TCP modem. Instructions, scripts, and more detail of using NomadNet over satellite will be posted at a later date.
@@ -147,6 +171,8 @@ deb-src http://deb.debian.org/debian trixie-backports main
 
 # If you are using a radio, turn your radio on, enable vox, disable roger beep. Set screen timeout after last activity to 10 seconds, this is the ABS setting on Baofeng radios.
 # Connect computer and radio with TRRS cable
+# If you are using an Iridium satellite phone to establish a connection directly with another satellite phone over an audio call, you will need a TRRS 3.5mm to TRS 2.5mm adapter. This can be found here https://www.amazon.com/dp/B0C4TNR2TZ?ref=ppx_yo2ov_dt_b_fed_asin_title or here https://satellitephonestore.com/catalog/sale/details/iridium-ptt-2-5mm-to-3-5-mm-headset-adapter
+# Alternatively, you can use an Iridium satellite phone as an internet modem, which I am planning to upload a setup guide and instructoins for.
 # Make sure the computer or device you are using the software on, supports both audio out and audio in on the jack that the audio cable is plugged into. If you are using a radio with a TRRS cable and if the computer is not detecting the radio audio interface when plugged in, but it detects headset, you can get a TRRS audio in and out splitter, and plug the TRRS splitter into the computer, then plug the headset into the splitter first to cause detection of the audio port, then proceed to plug in the radio into the second port of the TRRS splitter. The TRRS splitter must support audio in and out on both ports. A recommended one can be found here https://www.amazon.com/SOLMIMI-Headphone-Splitter-2-Female-Smartphone/dp/B08X6P2XH2/ 
 
 # Check output of direwolf for any errors, specifically for any errors related to volume level. If your input volume is too high it may ask you to turn it down. Either way you want to have your input volume set to 50 for reliability.
